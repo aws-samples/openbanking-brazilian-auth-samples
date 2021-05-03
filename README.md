@@ -8,13 +8,9 @@ This repo intends to demonstrate how an environment with the Open Banking mock A
 # Prerequisites:
 
 - [awscli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
-
 - [Pre configured AWS credentials](https://docs.aws.amazon.com/amazonswf/latest/developerguide/RubyFlowOptions.html)
-
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-
 - [cdk](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html)
-
 - [Docker](https://docs.docker.com/get-docker/)
 
 ## How to deploy
@@ -62,137 +58,73 @@ Follow these steps to prepare your setup:
 
 Set the following env variables in the `.env` file:
 
-| Key   |      Value      |
-|----------|:-------------:|
-| host | YOUR-NLB-DNS |
-| version | v1 |
-
-- [Import json File](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/)
-
-
-***The configuration file location:*** 
-`proxy/client/OpenBankingBrazil.postman_collection.json`
-
-
-- [Configure the certificates](https://learning.postman.com/docs/sending-requests/certificates/)
- 
-
-***Use the following:***
- 1. `proxy/client/ssl/client.crt`, 
- 2. `proxy/client/ssl/client.key`. 
- 3. The host is your NLB DNS.
+| Key   |      Value      |      Description      |
+|----------|:-------------:|-----------------------:|
+| ECR_REPOSITORY_ARN | arn:aws:ecr:<region>:<account_id>:repository/node-oidc-provider | Your Amazon ECR repository name for the Node OIDC Provider application |
+| ECR_OIDC_IMAGE_TAG | latest | Your Docker image tag (e.g. latest) |
+| ACM_CERTIFICATE_ARN |  arn:aws:acm:<region>:<account_id>:certificate/abc-123 | Your Amazon Certificate Manager (ACM) public certificate ARN |
+| R53_ZONE_NAME | example.com | Your Route 53 public zone name (e.g. example.com) |
+| R53_HOSTED_ZONE_ID | ABCDEF012345 | Your Route 53 public Hosted Zone ID |
+| R53_DOMAIN_NAME | oidc.example.com | The desired domain name to host your OIDC application (e.g. oidc.example.com) |
+| JWKS_URI | /jwks | Your OIDC Provider's JWKS Endpoint |
+| SM_JWKS_SECRET_NAME | dev/OpenBankingBrazil/Auth/OIDC_JWKS | The AWS Secrets Manager's secret name to securely store your JWKS Key ID for JWT token verification |
 
 
-Finally you can run any of the requests and you should be able to see the response as the picture below:
+## Test Your Application 
 
-![image](docs/postman.png)
+### 1. Terminal - Invoke your API
+First, use terminal to run the following command to invoke your API without any JWT token:
 
-
-## Terminal
-To test the mTLS connection, use terminal to run the following commands:
-
+```sh
+curl -X GET https://<API-ID>.execute-api.<REGION>.amazonaws.com/prod/
 ```
-cd proxy/client/ssl
-HOST='YOUR-NLB-DNS-HERE'
-VERSION='v1'
-```
+You should get the following error message with a `401 HTTP Status Code`:
 
-There are the following paths available for tests:
-```
-$HOST/discovery/$VERSION/status
+`"message": "Unauthorized"`
 
-$HOST/discovery/$VERSION/outstage
+Or the following error message with a `403 HTTP Status Code` in case you pass an invalid `Bearer` token:
 
-$HOST/channels/$VERSION/branches
+`"Message": "User is not authorized to access this resource with an explicit deny"`
 
-$HOST/channels/$VERSION/electronic-channels
+### 2. Browser - Authenticate against the OIDC provider
 
-$HOST/channels/$VERSION/phone-channels
+Open your browser and open the following URL:
 
-$HOST/channels/$VERSION/banking-agents
+`https://<YOUR-DOMAIN-NAME>/auth?client_id=client_app&redirect_uri=https://jwt.io&response_type=id_token&scope=openid%20profile&nonce=123&state=abca`
 
-$HOST/products-services/$VERSION/personal-accounts
+You'll be required to enter your username/password. At this time, you can enter any user/pass. Click **Sign-in**.
 
-$HOST/products-services/$VERSION/business-accounts
+![auth_1](auth_1.png)
 
-$HOST/products-services/$VERSION/personal-loans
+Now, once presented with the `consent` screen, you can authorize the provider to issue a token on behalf of your user. Click **Continue**.
 
-$HOST/products-services/$VERSION/business-loans
+![auth_2](auth_2.png)
 
-$HOST/products-services/$VERSION/personal-financings
+For validation-only purposes, you are being redirected to JWT.IO to visualize your issue JWT token. **Copy the generated token from the left side of the screen**.
 
-$HOST/products-services/$VERSION/personal-invoice-financings
+![auth_2](jwt_issued.png)
 
-$HOST/products-services/$VERSION/personal-credit-cards
+### 3. Terminal - Invoke your API passing your JWT as Authorization Header
 
-$HOST/products-services/$VERSION/business-credit-cards
+Let's try once again, this time including the `Authorization` header in our request together with our newly issued JWT token.
 
-$HOST/admin/$VERSION/metrics
+```sh
+curl -X GET https://<API-ID>.execute-api.<REGION>.amazonaws.com/prod/ -H "Authorization: Bearer <YOUR.ACCESS.TOKEN>"
 ```
 
-To test any of these paths, run the following command: 
+Now, you should get the following message with a `200 HTTP Status Code`:
 
-`curl --key client.key --cert client.crt -k COMMAND`
+`Hello From Authorized API`
 
-For example:
-
-````
-★  ssl [docs] ♡  curl --key client.key --cert client.crt -k $HOST/channels/$VERSION/electronic-channels
-
-{
-  "data": {
-    "brand": {
-      "name": "Organização A",
-      "companies": [
-        {
-          "name": "Empresa A1",
-          "cnpjNumber": "45086338000178",
-          "urlComplementaryList": "https://empresaa1.com/branches-banking",
-          "channels": [
-            {
-              "identification": {
-                "type": "INTERNET_BANKING",
-                "additionalInfo": "NA",
-                "url": "https://empresaa1.com/internet-banking"
-              },
-              "service": {
-                "codes": [
-                  "ABERTURA_CONTA",
-                  "RECEBIMENTOS_PAGAMENTOS_TRANSFERENCIAS_ELETRONICAS",
-                  "OPERACOES_CREDITO",
-                  "CARTAO_CREDITO",
-                  "OPERACOES_CAMBIO",
-                  "INVESTIMENTOS",
-                  "SEGUROS",
-                  "OUTROS"
-                ],
-                "additionalInfo": "Previdência Complementar"
-              }
-            }
-          ]
-        }
-      ]
-    }
-  },
-  "links": {
-    "self": "https://api.banco.com.br/open-banking/channels/v1/electronic-channels",
-    "first": "https://api.banco.com.br/open-banking/channels/v1/electronic-channels",
-    "prev": "null",
-    "next": "null",
-    "last": "https://api.banco.com.br/open-banking/channels/v1/electronic-channels"
-  },
-  "meta": {
-    "totalRecords": 1,
-    "totalPages": 1
-  }
-}
-````
+Congratulations! You now have configured your API Gateway to authorize access based on JWT-based tokens issued by an external FAPI-compliant OIDC Provider.
 
 # Cleaning UP
 
 Run the following command:
 
-`cdk destroy`
+```sh
+cdk destroy
+```
 
 ## Security
 
