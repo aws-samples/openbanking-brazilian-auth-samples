@@ -2,7 +2,7 @@
 
 # Overview
 
-This repo intends to demonstrate how an environment with the Open Banking mock API's can work in AWS using mTLS.
+This repo intends to demonstrate how to address the security Open Banking requirement to use Amazon API Gateway to protect and authorize accesses using an external [FAPI-compliant OIDC provider](./resources/oidc-provider-app) using a [Lambda Authorizer](./resources/lambda/lambda-auth.js).
 *** 
 
 # Prerequisites:
@@ -15,48 +15,19 @@ This repo intends to demonstrate how an environment with the Open Banking mock A
 
 ## How to deploy
 
-Make sure Docker is running. During the deploy we will use Docker to create the container that will be used to run NGINX. 
+Make sure Docker is running. During the deploy we will use Docker to create the container that will be used to run NODE-OIDC. 
 
 After Docker is running, execute the following commands: 
 
-```
+```sh
 git clone <REPO_URL>
 
 cd <REPO_NAME>/
 
-./proxy/generate-certs.sh
 
-npm install
-
-cdk bootstrap
-
-cdk synth
-
-cdk deploy
 ```
 
-This will clone this repo, then install all packages required. CDK will then bootstrap a deploy environment in your account. You will then synthetize a cloudformation template and finally deploy it. The end result will be the following architecture: 
-
-![arquitetura](docs/proxy-mtls-architecture-background.png)
-
-# How to test
-
-There are two options for tests:
-
-- Postman
-- Terminal
-
-Before moving on, make sure you have in hand the your Network Load Balancer (NLB) URL. CDK shows you an output with the created assets and you should look for a name similar to "OpenBankingBrazil.ProxyProxyServiceLoadBalancerDNSE4FAFBA0". Copy the value of this key as it is the URL for your NLB.
-
-## Postman
-
-Follow these steps to prepare your setup: 
-
-- [Create Workspace](https://learning.postman.com/docs/collaborating-in-postman/using-workspaces/creating-workspaces/)
-
-- [Create Environment](https://learning.postman.com/docs/sending-requests/variables/)
-
-Set the following env variables in the `.env` file:
+Now, make sure to set the following env variables in the `.env` file:
 
 | Key   |      Value      |      Description      |
 |----------|:-------------:|-----------------------:|
@@ -68,6 +39,24 @@ Set the following env variables in the `.env` file:
 | R53_DOMAIN_NAME | oidc.example.com | The desired domain name to host your OIDC application (e.g. oidc.example.com) |
 | JWKS_URI | /jwks | Your OIDC Provider's JWKS Endpoint |
 | SM_JWKS_SECRET_NAME | dev/OpenBankingBrazil/Auth/OIDC_JWKS | The AWS Secrets Manager's secret name to securely store your JWKS Key ID for JWT token verification |
+
+
+
+```sh
+cd <REPO_NAME>/
+
+npm install
+
+cdk deploy
+```
+
+This will clone this repo, then install all packages required. CDK will then bootstrap a deploy environment in your account. You will then synthetize a cloudformation template and finally deploy it. The end result will be the following architecture: 
+
+![arquitetura](docs/proxy-mtls-architecture-background.png)
+
+# How to test
+
+
 
 
 ## Test Your Application 
