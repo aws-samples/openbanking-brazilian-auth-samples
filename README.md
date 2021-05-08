@@ -69,6 +69,14 @@ This will install all packages required. CDK will then bootstrap a deploy enviro
 
 ![arquitetura](arquitetura.png)
 
+1. User accesses the OIDC provider to Authenticate (AuthN) and enter its credentials.
+1. OIDC provider issues a JWT-based access and/or ID token to client.
+1. User invokes a protected API resource passing the access/ID bearer token to the `Authorization` header.
+1. API Gateway uses a Lambda Authorizer to decode and verify the JWT token and its scopes to allow/deny access to the protected resource.
+1. Lambda Authorizer query the JWKS key for verifying the token signature stored in AWS Secrets Manager
+1. Lambda Authorizer uses the retrieved key from AWS Secrets Manager to verify the token signature against the OIDC provider. 
+1. In case the token is successfully verified and contains the proper scopes to access the API resource, Lambda Authorizer returns a temporary IAM credential allowing API Gateway to invoke the protected resource. 
+1. API Gateway invokes the protected resource and performs an action on behalf of the user.
 
 ## 2. Test Your Application 
 
