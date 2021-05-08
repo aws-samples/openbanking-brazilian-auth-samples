@@ -5,15 +5,6 @@
 This repo intends to demonstrate how to address the OAuth2-based authorization security requirement for Brazilian Open Banking to use Amazon API Gateway to protect and authorize API accesses using an external [FAPI-compliant OIDC provider](./resources/oidc-provider-app) and a [Lambda Authorizer](./resources/lambda/lambda-auth.js).
 *** 
 
-**Table of Contents**
-
-- [Prerequisites](#prerequisites)
-- [How to Deploy](#1.-how--to--deploy)
-- [Test Your Application](#2.test--your--application)
-- [Cleaning Up](#3.cleaning--up)
-- [Security](#4.--security)
-- [License](#5.--license)
-
 ## Prerequisites:
 
 - [awscli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
