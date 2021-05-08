@@ -8,9 +8,9 @@ This repo intends to demonstrate how to address the OAuth2-based authorization s
 **Table of Contents**
 
 - [Prerequisites](#prerequisites)
-- [How to Deploy](#1.--how--to--deploy)
-- [Test Your Application](#2.--test--your--application)
-- [Cleaning Up](#3.--cleaning--up)
+- [How to Deploy](#1.-how--to--deploy)
+- [Test Your Application](#2.test--your--application)
+- [Cleaning Up](#3.cleaning--up)
 - [Security](#4.--security)
 - [License](#5.--license)
 
