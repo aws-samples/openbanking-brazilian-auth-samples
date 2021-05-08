@@ -65,7 +65,7 @@ npm install
 cdk deploy
 ```
 
-This will install all packages required. CDK will then bootstrap a deploy environment in your account. You will then synthetize a cloudformation template and finally deploy it. The end result will be the following architecture: 
+This will install all packages required. CDK will then bootstrap a deploy environment in your account. You will then synthetize a cloudformation template and finally deploy it. The end result will be the following architecture performing the following steps: 
 
 ![arquitetura](arquitetura.png)
 
