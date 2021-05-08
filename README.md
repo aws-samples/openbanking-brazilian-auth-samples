@@ -1,11 +1,11 @@
 # Open Banking Brazil - Authentication Samples
 
-# Overview
+## Overview
 
 This repo intends to demonstrate how to address the OAuth2-based authorization security requirement for Brazilian Open Banking to use Amazon API Gateway to protect and authorize API accesses using an external [FAPI-compliant OIDC provider](./resources/oidc-provider-app) and a [Lambda Authorizer](./resources/lambda/lambda-auth.js).
 *** 
 
-# Prerequisites:
+## Prerequisites:
 
 - [awscli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
 - [Pre configured AWS credentials](https://docs.aws.amazon.com/amazonswf/latest/developerguide/RubyFlowOptions.html)
@@ -15,9 +15,9 @@ This repo intends to demonstrate how to address the OAuth2-based authorization s
 - [A Route 53 Public Hosted Zone configured to a DNS](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-configuring.html)
 - [A Public Certificate issued to your Domain Name using ACM](https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-request-public.html)
 
-## How to deploy
+## 1. How to deploy
 
-### Creating the Container 
+### 1.1. Creating the Container Image
 
 Make sure Docker is running. We will use Docker to create the container that will be used to run NODE-OIDC, create an Amazon ECR repository, and push our newly create image to our repository. 
 
@@ -40,6 +40,8 @@ docker tag oidc-provider-app:latest <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazon
 docker push <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/oidc-provider-app:latest
 ```
 
+### 1.2. Configure Environment Variables
+
 Now, make sure to set the following env variables in the `.env` file:
 
 | Key   |      Value      |      Description      |
@@ -53,7 +55,7 @@ Now, make sure to set the following env variables in the `.env` file:
 | JWKS_URI | /jwks | Your OIDC Provider's JWKS Endpoint |
 | SM_JWKS_SECRET_NAME | dev/OpenBankingBrazil/Auth/OIDC_JWKS | The AWS Secrets Manager's secret name to securely store your JWKS Key ID for JWT token verification |
 
-### Deploy the CDK Stack
+### 1.3. Deploy the CDK Stack
 
 ```sh
 cd <REPO_NAME>/resources/lambda
@@ -67,14 +69,10 @@ This will install all packages required. CDK will then bootstrap a deploy enviro
 
 ![arquitetura](docs/proxy-mtls-architecture-background.png)
 
-# How to test
 
+## 2. Test Your Application 
 
-
-
-## Test Your Application 
-
-### 1. Terminal - Invoke your API
+### 2.1. Terminal - Invoke your API
 First, use terminal to run the following command to invoke your API without any JWT token:
 
 ```sh
@@ -88,7 +86,7 @@ Or the following error message with a `403 HTTP Status Code` in case you pass an
 
 `"Message": "User is not authorized to access this resource with an explicit deny"`
 
-### 2. Browser - Authenticate against the OIDC provider
+### 2.2. Browser - Authenticate against the OIDC provider
 
 Open your browser and open the following URL:
 
@@ -106,7 +104,7 @@ For validation-only purposes, you are being redirected to JWT.IO to visualize yo
 
 ![auth_2](jwt_issued.png)
 
-### 3. Terminal - Invoke your API passing your JWT as Authorization Header
+### 2.3. Terminal - Invoke your API passing your JWT as Authorization Header
 
 Let's try once again, this time including the `Authorization` header in our request together with our newly issued JWT token.
 
@@ -118,9 +116,9 @@ Now, you should get the following message with a `200 HTTP Status Code`:
 
 `Hello From Authorized API`
 
-Congratulations! You now have configured your API Gateway to authorize access based on JWT-based tokens issued by an external FAPI-compliant OIDC Provider.
+Congratulations! You have now configured your API Gateway to authorize access based on JWT-based tokens issued by an external FAPI-compliant OIDC Provider.
 
-# Cleaning UP
+## 3. Cleaning UP
 
 Run the following command:
 
@@ -129,11 +127,11 @@ cdk destroy
 aws ecr delete-repository --repository-name oidc-provider-app
 ```
 
-## Security
+## 4. Security
 
 See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
 
-## License
+## 5. License
 
 This library is licensed under the MIT-0 License. See the LICENSE file.
 
