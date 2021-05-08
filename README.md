@@ -12,6 +12,8 @@ This repo intends to demonstrate how to address the OAuth2-based authorization s
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 - [cdk](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html)
 - [Docker](https://docs.docker.com/get-docker/)
+- [A Route 53 Public Hosted Zone configured to a DNS](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-configuring.html)
+- [A Public Certificate issued to your Domain Name using ACM](https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-request-public.html)
 
 ## How to deploy
 
@@ -134,4 +136,5 @@ See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more inform
 ## License
 
 This library is licensed under the MIT-0 License. See the LICENSE file.
+
 
