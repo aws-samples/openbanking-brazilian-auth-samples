@@ -2,7 +2,7 @@
 
 # Overview
 
-This repo intends to demonstrate how to address the security Open Banking requirement to use Amazon API Gateway to protect and authorize accesses using an external [FAPI-compliant OIDC provider](./resources/oidc-provider-app) using a [Lambda Authorizer](./resources/lambda/lambda-auth.js).
+This repo intends to demonstrate how to address the OAuth2-based authorization security requirement for Brazilian Open Banking to use Amazon API Gateway to protect and authorize API accesses using an external [FAPI-compliant OIDC provider](./resources/oidc-provider-app) and a [Lambda Authorizer](./resources/lambda/lambda-auth.js).
 *** 
 
 # Prerequisites:
@@ -15,23 +15,34 @@ This repo intends to demonstrate how to address the security Open Banking requir
 
 ## How to deploy
 
-Make sure Docker is running. During the deploy we will use Docker to create the container that will be used to run NODE-OIDC. 
+### Creating the Container 
+
+Make sure Docker is running. We will use Docker to create the container that will be used to run NODE-OIDC, create an Amazon ECR repository, and push our newly create image to our repository. 
 
 After Docker is running, execute the following commands: 
 
 ```sh
 git clone <REPO_URL>
+cd <REPO_NAME>/resources/oidc-provider-app
+npm install
+aws ecr create-repository --repository-name oidc-provider-app
+```
 
-cd <REPO_NAME>/
+Take note of your `repositoryUrl` output variable, which should be something like this: `repositoryUri": "<AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/oidc-provider-app"`
 
+Now let's build our image and push it to the ECR repository:
 
+```sh
+docker build -t oidc-provider-app .
+docker tag oidc-provider-app:latest <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/oidc-provider-app:latest
+docker push <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/oidc-provider-app:latest
 ```
 
 Now, make sure to set the following env variables in the `.env` file:
 
 | Key   |      Value      |      Description      |
 |----------|:-------------:|-----------------------:|
-| ECR_REPOSITORY_ARN | arn:aws:ecr:<region>:<account_id>:repository/node-oidc-provider | Your Amazon ECR repository name for the Node OIDC Provider application |
+| ECR_REPOSITORY_ARN | arn:aws:ecr:<region>:<account_id>:repository/oidc-provider-app | Your Amazon ECR repository name for the Node OIDC Provider application |
 | ECR_OIDC_IMAGE_TAG | latest | Your Docker image tag (e.g. latest) |
 | ACM_CERTIFICATE_ARN |  arn:aws:acm:<region>:<account_id>:certificate/abc-123 | Your Amazon Certificate Manager (ACM) public certificate ARN |
 | R53_ZONE_NAME | example.com | Your Route 53 public zone name (e.g. example.com) |
@@ -40,17 +51,17 @@ Now, make sure to set the following env variables in the `.env` file:
 | JWKS_URI | /jwks | Your OIDC Provider's JWKS Endpoint |
 | SM_JWKS_SECRET_NAME | dev/OpenBankingBrazil/Auth/OIDC_JWKS | The AWS Secrets Manager's secret name to securely store your JWKS Key ID for JWT token verification |
 
-
+### Deploy the CDK Stack
 
 ```sh
-cd <REPO_NAME>/
-
+cd <REPO_NAME>/resources/lambda
 npm install
-
+cd ../..
+npm install
 cdk deploy
 ```
 
-This will clone this repo, then install all packages required. CDK will then bootstrap a deploy environment in your account. You will then synthetize a cloudformation template and finally deploy it. The end result will be the following architecture: 
+This will install all packages required. CDK will then bootstrap a deploy environment in your account. You will then synthetize a cloudformation template and finally deploy it. The end result will be the following architecture: 
 
 ![arquitetura](docs/proxy-mtls-architecture-background.png)
 
@@ -113,6 +124,7 @@ Run the following command:
 
 ```sh
 cdk destroy
+aws ecr delete-repository --repository-name oidc-provider-app
 ```
 
 ## Security
