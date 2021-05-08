@@ -67,7 +67,7 @@ cdk deploy
 
 This will install all packages required. CDK will then bootstrap a deploy environment in your account. You will then synthetize a cloudformation template and finally deploy it. The end result will be the following architecture: 
 
-![arquitetura](docs/proxy-mtls-architecture-background.png)
+![arquitetura](arquitetura.png)
 
 
 ## 2. Test Your Application 
