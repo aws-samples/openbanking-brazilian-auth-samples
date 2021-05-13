@@ -1,4 +1,4 @@
-# Open Banking Brazil - Authentication Samples
+# Open Banking Brazil - Authorization Samples
 
 ## Overview
 
