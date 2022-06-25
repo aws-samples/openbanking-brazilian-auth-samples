@@ -12,7 +12,7 @@
     "cfn-response": "^1.0.1",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.0.2",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.7"
   },
   "scripts": {
     "test": "mocha tests/unit/"
