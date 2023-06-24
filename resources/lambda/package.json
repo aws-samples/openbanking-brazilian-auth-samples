@@ -10,7 +10,7 @@
     "aws-sdk": "^2.897.0",
     "axios": "^0.21.2",
     "cfn-response": "^1.0.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "jwks-rsa": "^2.0.2",
     "node-fetch": "^2.6.7"
   },
